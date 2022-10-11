@@ -21,7 +21,7 @@ def Cezar(text, key):
         if character in alfabet:
             position = alfabet.index(character)
 
-            if position + key > len(alfabet):
+            if position + key >= len(alfabet):
                 temp = alfabet[abs(len(alfabet) - (position + key))]
             else:
                 temp = alfabet[position + key]
@@ -36,9 +36,9 @@ def Cezar(text, key):
 
 
 if __name__ == '__main__':
-    print(Cezar('Ala ma kota.', 3)  == 'Cnc oc mqwc.')
-    print(Cezar('Ala ma kota.', 20)  == 'Óżó ąó źćió.')
-    print(Cezar('Ala ma 2 koty.', 5)  == 'Dod pd 2 ńsyą.')
+    print(Cezar('Ala ma kota.', 3) == 'Cnc oc mqwc.')
+    print(Cezar('Ala ma kota.', 20) == 'Óżó ąó źćió.')
+    print(Cezar('Ala ma 2 koty.', 5) == 'Dod pd 2 ńsyą.')
     print(Cezar(
         'Daremne żale, próżny trud,\nBezsilne złorzeczenia!\nPrzeżytych kształtów żaden cud\nNie wróci do istnienia.',
         7)
