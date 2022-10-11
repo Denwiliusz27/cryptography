@@ -9,7 +9,6 @@ alfabet = ['a', 'ą', 'b', 'c', 'ć', 'd', 'e', 'ę', 'f', 'g', 'h', 'i', 'j', '
 def Cezar(text, key):
     is_upper = False
     final = ''
-    temp = ''
 
     for character in text:
         if character in string.punctuation or character in string.whitespace or character in string.digits:
