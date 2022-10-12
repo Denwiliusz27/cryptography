@@ -1,19 +1,20 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import string
 
 alfabet = ['a', 'ą', 'b', 'c', 'ć', 'd', 'e', 'ę', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'ł', 'm',
            'n', 'ń', 'o', 'ó', 'p', 'q', 'r', 's', 'ś', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ź', 'ż']
 
 
+# funkcja szyfrująca i deszyfrująca szyfr Cezara
 def Cezar(text, key):
     is_upper = False
     final = ''
 
     for character in text:
+        # sprawdzenie czy czytany znak nie jest kropką, przecinkiem, liczbą lub spacją
         if character in string.punctuation or character in string.whitespace or character in string.digits:
             final += character
             continue
+        # jeśli znak jest dużą literą, zmienna is_upper jest ustawiana na True
         elif character.isupper():
             character = character.lower()
             is_upper = True
@@ -21,11 +22,13 @@ def Cezar(text, key):
         if character in alfabet:
             position = alfabet.index(character)
 
+            # pobierany jest znak z pozycji odpowiadającej sumie pozycji czytanego znaku i klucza
             if position + key >= len(alfabet):
                 temp = alfabet[abs(len(alfabet) - (position + key))]
             else:
                 temp = alfabet[position + key]
 
+            # jeśli czytany znak był dużą literą, w outpucie zapisywany jest równiez dużą literą
             if is_upper:
                 final += temp.upper()
                 is_upper = False

@@ -1,16 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import string
 
 alfabet = ['a', 'ą', 'b', 'c', 'ć', 'd', 'e', 'ę', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'ł', 'm',
            'n', 'ń', 'o', 'ó', 'p', 'q', 'r', 's', 'ś', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ź', 'ż']
 
 
-# funkcja odszyfrowująca podany tekst za pomoca podanego klucza
+# funkcja odszyfrowująca podany tekst
 def decrypt(text):
     is_upper = False
     key = 0
 
+    # wykonywana jest funkcja deszyfrująca dla każdego możliwego klucza
     while key > -35:
         key -= 1
         final = ''
@@ -38,7 +37,6 @@ def decrypt(text):
                     final += temp
 
         print("key: ", -key, " - ", final)
-
 
 
 if __name__ == '__main__':
