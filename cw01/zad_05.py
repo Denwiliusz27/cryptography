@@ -162,6 +162,17 @@ def Vignere_encrypt(text, key):
     return final
 
 
+def Vignere_decrypt(text, key):
+    final = ''
+
+    # klucz zostaje odwrócony
+    for char in key:
+        final += liczb_do_lit[(len(alphabet) - lit_do_liczb[char]) % len(alphabet)]
+
+    # wywołanie funkcji szyfrującej z odwróconym kluczem
+    return Vignere_encrypt(text, final)
+
+
 if __name__ == '__main__':
     liczb_do_lit = dict()
     lit_do_liczb = dict()
@@ -181,6 +192,6 @@ if __name__ == '__main__':
     new_key = find_key(test_text)
 
     output_file = open('ksiazka2_output.txt', 'a')
-    final_txt = Vignere_encrypt(book, new_key)
+    final_txt = Vignere_decrypt(book, new_key)
     output_file.write(final_txt)
     output_file.close()
