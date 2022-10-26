@@ -22,13 +22,11 @@ def add_str(msg1, msg2):
     msg_sum = [''] * len(msg1)
     msg1_b = [0] * len(msg1)
     msg2_b = [0] * len(msg2)
-    # msg_sum_b = [0] * len(msg1)
 
     for i in range(0, len(msg1)):
         msg1_b[i] = ord(msg1[i])
         msg2_b[i] = ord(msg2[i])
         msg_sum[i] = chr(msg1_b[i] ^ msg2_b[i])
-        # msg_sum_b[i] = msg1_b[i] ^ msg2_b[i]
 
     return msg_sum
 
