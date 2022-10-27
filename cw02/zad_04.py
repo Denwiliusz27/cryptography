@@ -72,7 +72,6 @@ if __name__ == '__main__':
         index = int(input())
 
         if index == -1:
-
             break
 
         encoded_str = add_str(message_sum[index:index + len(key)], key)
