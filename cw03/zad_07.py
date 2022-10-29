@@ -237,6 +237,7 @@ def key_schedule(key):
     return subkeys
 
 
+# dzieli podany ciąg bitów na bloki len-bitowe
 def split_img(img, len):
     splitted = textwrap.wrap(img, len)
 
@@ -262,22 +263,22 @@ if __name__ == '__main__':
     arr_bin = [dec2bin(d, pad='8') for d in arr]
     bits = ''.join(arr_bin)
 
+    # tworzę podklucze
     subkeys = key_schedule(key)
+
+    # rozbicie na 64 bitowe bloki
     bits_arr = textwrap.wrap(bits, 64)
 
-    print("bits_arr[0] = ", bits_arr[0])
-
+    # dla każdego ciągu bitów wykonywane odszyfrowanie za pomocą DES
     for i in range(len(bits_arr)):
         bits_arr[i] = DES(bits_arr[i], subkeys[::-1])
 
+    # połączenie otrzymanych ciągów bitów w 1
     final_bits = ''.join(bits_arr)
-    print("end")
 
     # img_t to ciąg stringów powstałych z odszyfrowania DES-em
     # split_img(img_t,8) dzieli img_t na bloki 8 bitowe, możesz zaimplementować tę funkcję lub rozwiązać to inaczej
     img = np.array([bin2dec(b) for b in split_img(final_bits, 8)]).reshape(np.array(img_enc).shape)
 
-
     final_coded_img = Image.fromarray(np.uint8(np.array(img)))
     final_coded_img.save("final.png", "PNG")
-
