@@ -1,5 +1,31 @@
 import numpy as np
 
+hex_to_bin = { '0':'0000', '1':'0001', '2':'0010', '3':'0011', '4':'0100', '5':'0101', '6':'0110', '7':'0111',
+                '8':'1000', '9':'1001', 'a':'1010', 'b':'1011', 'c':'1100', 'd':'1101', 'e':'1110', 'f':'1111' }
+
+A=[['02','03','01','01'],
+   ['01','02','03','01'],
+   ['01','01','02','03'],
+   ['03','01','01','02']]
+
+
+def hex2bin(hex_str,pad=0):
+    bin = ''
+
+    # każdy znak z otrzymanego ciągu zamieniam na odpowiadającą mu, binarną czwórkę
+    for i in range(len(hex_str)):
+        bin = bin + hex_to_bin[hex_str[i]]
+
+    # usuwam zera z początku
+    bin = bin.lstrip('0')
+
+    # dopełniam ciąg zerami do wymaganej długości
+    if len(bin) < pad:
+        bin = '0'* (pad-len(bin)) + bin
+
+    return bin
+
+
 def add_GF(p,q):
     sum = ''
 
@@ -20,6 +46,10 @@ def add_GF(p,q):
 
     # pozbywam sie wiodących zer
     sum = sum.lstrip('0')
+
+    if sum == '':
+        sum = '0'
+
     return sum
 
 
@@ -117,30 +147,33 @@ def multiply_GF(p,q):
     return rest
 
 
-def EEA_GF(a, b):
-    x = '1'
-    y = '0'
-    r = '0'
-    s = '1'
+def MixColumns(state):
+    a = [['' for x in range(len(state))] for y in range(len(state[0]))]
 
-    while b != '0':
-        a = a.lstrip('0')
-        b = b.lstrip('0')
-        q, c = divide(a, b)
-        a = b
-        b = c
+    for i in range(len(a)):
+        for j in range(len(a[0])):
+            a[i][j] = hex2bin(A[i][j], 8)
 
-        r2 = r
-        s2 = s
-        r = add_GF(x, multiply_GF(q, r))
-        s = add_GF(y, multiply_GF(q, s))
-        x = r2
-        y = s2
+    print(a)
 
-    return x, y
+
+    for i in range(len(state)):
+        for j in range(len(state[0])):
+            state[i][j] = hex2bin(state[i][j],8)
+
+    print(state)
+
+
+
 
 
 
 if __name__ == '__main__':
-    print(EEA_GF('11010101', '10010111') == ('11001', '10100'))
-    print(EEA_GF('11110000', '11001011') == ('1000000', '1010111'))
+    print(MixColumns([['5a', '67', '2b', '3a'],
+                      ['ba', '21', '82', '9e'],
+                      ['e3', '86', '26', 'b5'],
+                      ['01', '66', '09', '1a']]) ==
+                     [['83', '4d', 'e4', '62'],
+                      ['0a', 'd2', '57', 'c3'],
+                      ['3e', 'fb', 'fe', 'fb'],
+                      ['b5', 'c2', 'cb', '51']])

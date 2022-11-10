@@ -73,10 +73,12 @@ def divide(p,q):
 
     # jesli w wyniku dzielenia otrzymalem 2: dziele modulo 2 i podstawiam 0, -1 - zamieniam na 1
     for i in range(len(div)):
-        if div[i] == -1:
+        if abs(div[i]) == 1:
             div_f.append('1')
-        elif div[i] == 2:
+        elif abs(div[i])%2 == 0:
             div_f.append('0')
+        elif abs(div[i])%2 != 0:
+            div_f.append('1')
         else:
             div_f.append(str(int(div[i])))
 
@@ -84,8 +86,10 @@ def divide(p,q):
     for i in range(len(rest)):
         if rest[i] == -1:
             rest_f.append('1')
-        elif rest[i] == 2 or rest[i] == -2:
+        elif abs(rest[i])%2 == 0:
             rest_f.append('0')
+        elif abs(rest[i])%2 != 0:
+            rest_f.append('1')
         else:
             rest_f.append(str(int(rest[i])))
 

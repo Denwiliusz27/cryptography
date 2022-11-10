@@ -20,6 +20,10 @@ def add_GF(p,q):
 
     # pozbywam sie wiodących zer
     sum = sum.lstrip('0')
+
+    if sum == '':
+        sum = '0'
+
     return sum
 
 
@@ -49,7 +53,6 @@ def multiply(p,q):
         sum = multiplication_el[0]
 
     return sum
-
 
 def divide(p,q):
     p_array = []
@@ -140,7 +143,13 @@ def EEA_GF(a, b):
     return x, y
 
 
+def inverse_GF(p):
+    m = '100011011'
+    s, t = EEA_GF(p, m)
+    return s
+
+
 
 if __name__ == '__main__':
-    print(EEA_GF('11010101', '10010111') == ('11001', '10100'))
-    print(EEA_GF('11110000', '11001011') == ('1000000', '1010111'))
+    print(inverse_GF('11001010') == '1010011')
+    print(inverse_GF('1100101') == '10100110')
