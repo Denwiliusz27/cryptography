@@ -417,21 +417,26 @@ def AddRoundKey(state, subkey):
 
 
 def AES(msg, subkeys):
+    # zamieniam wiadomosc na stan
     state = prepare_state(msg)
+
+    # dodaje do stanu pierwszy podklucz
     state = AddRoundKey(state, subkeys[0])
 
+    # 9rund, dla każdej wykonuje SubBytes, ShiftRows i MixColumns na stanie. Do otrzymanego stanu dodaje odpowiedni podklucz
     for i in range(1, 10):
         state = SubBytes(state)
         state = ShiftRows(state)
         state = MixColumns(state)
         state = AddRoundKey(state, subkeys[i])
 
+    # na stanie wykonuje SubBytes i ShiftRows. Do otrzymanego stanu dodaje ostatni podklucz
     state = SubBytes(state)
     state = ShiftRows(state)
     state = AddRoundKey(state, subkeys[10])
 
+    # zamieniam stan na ciag bitow
     result = ''
-
     for i in range(len(state)):
         for j in range(len(state[i])):
             result += hex2bin(state[i][j], 8)

@@ -239,27 +239,46 @@ def split_img(img_bin, n):
     return img_split
 
 
+def CBC(msg, key, iv):
+    result = []
+
+    # tworze liste podkluczy
+    subkeys = key_schedule(key)
+    # dziele wiadomosc na czesci po 64 bity
+    sub_msg = textwrap.wrap(msg, 64)
+
+    vector = iv
+
+    for i in range(len(sub_msg)):
+        # wykonuje xor vektora z odpowiednia czescia wiadomosci
+        new_msg = xor(vector, sub_msg[i])
+        # otrzymany ciag przepuszczam przez DES'a wraz z lista podkluczy. Wynik dodaje do tablicy wynikowej
+        result.append(DES(new_msg, subkeys))
+        # vector dla kolejnego przebiegu petli ustawiam jako resultat DES'a
+        vector = result[i]
+
+    final = ''.join(result)
+    return final
+
+
 if __name__ == '__main__':
     key = '0111101000001010110010000001010101111111100000000000101000110001'
+    iv = '0011111111001100000111011100110100100101010100000111010001000110'
+    msg = '1000110001101011011101110010100111101111101100111100001010100001011111110100000100100000111011001011000001011100110111101111110100000000100101011101110010000000110011011100000111000110011100111000010111111111011111000110001010101001101111110000010110011011'
+
+    print("Szyfrowanie msg: ", CBC(msg, key,
+                                   iv) == '1111101000110001101111001100101101011001101010001101010101100111011001100111010011001011100001001111011000001111110010011110011101010000101011010011011100011110011011001011100100011100011001011101110011110001110100010111001100100010111101011111101010111000')
 
     img = Image.open('miki.png')
     arr = np.array(img).ravel()
     arr_bin = [dec2bin(d, pad='8') for d in arr]
     bits = ''.join(arr_bin)
 
-    # dziele obrazek na czesci po 64 bity
-    sub_msg = textwrap.wrap(bits, 64)
+    miki_cbc = CBC(bits, key, iv)
 
-    # tworze liste podkluczy
-    subkeys = key_schedule(key)
-    result = []
-
-    # na kazdej czesci obrazka wykonuje DES przy pomocy listy podkluczy
-    for i in range(len(sub_msg)):
-        result.append(DES(sub_msg[i], subkeys))
-
-    # otrzymane zakodowane czesci lacze w jeden ciag
-    img_t = ''.join(result)
+    img_t = ''.join(miki_cbc)
     img = np.array([bin2dec(b) for b in split_img(img_t, 8)]).reshape(np.array(img).shape)
     f_image = Image.fromarray(np.uint8(np.array(img)))
-    f_image.save("ecb_miki.png", "PNG")
+    f_image.save("cbc_miki_coded.png", "PNG")
+
+    print("Miki zakodowany")

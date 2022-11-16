@@ -239,27 +239,34 @@ def split_img(img_bin, n):
     return img_split
 
 
-if __name__ == '__main__':
-    key = '0111101000001010110010000001010101111111100000000000101000110001'
-
-    img = Image.open('miki.png')
-    arr = np.array(img).ravel()
-    arr_bin = [dec2bin(d, pad='8') for d in arr]
-    bits = ''.join(arr_bin)
-
-    # dziele obrazek na czesci po 64 bity
-    sub_msg = textwrap.wrap(bits, 64)
+def OFB(msg,key,iv):
+    result = []
 
     # tworze liste podkluczy
     subkeys = key_schedule(key)
-    result = []
+    # dziele wiadomosc na czesci po 64 bity
+    sub_msg = textwrap.wrap(msg, 64)
 
-    # na kazdej czesci obrazka wykonuje DES przy pomocy listy podkluczy
+    vector = iv
+
     for i in range(len(sub_msg)):
-        result.append(DES(sub_msg[i], subkeys))
+        # vector przepuszczam przez DES'a
+        new_msg = DES(vector, subkeys)
+        # otrzymany ciag xor'uje z odpowiednia czescia wiadomosci i dodaje do tablicy wynikowej
+        result.append(xor(sub_msg[i], new_msg))
+        # ustawiam vector dla kolejnego przebiegu petli jako wynik DES'a
+        vector = new_msg
 
-    # otrzymane zakodowane czesci lacze w jeden ciag
-    img_t = ''.join(result)
-    img = np.array([bin2dec(b) for b in split_img(img_t, 8)]).reshape(np.array(img).shape)
-    f_image = Image.fromarray(np.uint8(np.array(img)))
-    f_image.save("ecb_miki.png", "PNG")
+    final = ''.join(result)
+    return final
+
+
+if __name__ == '__main__':
+    msg = '1000110001101011011101110010100111101111101100111100001010100001011111110100000100100000111011001011000001011100110111101111110100000000100101011101110010000000110011011100000111000110011100111000010111111111011111000110001010101001101111110000010110011011'
+    key = '0111101000001010110010000001010101111111100000000000101000110001'
+    iv = '0011111111001100000111011100110100100101010100000111010001000110'
+
+    print("Szyfrowanie: ", OFB(msg, key,
+              iv) == '1100001001010001100110011101011100100011010101010111010010010011100101001100010001000100011110101011011101001110000000111000111101000101101111011100001111001100110010101110100110111000111000001100110010110101111101101100101110001010111011111110101100110000')
+
+    print("Deszyfrowanie: ", OFB(OFB(msg, key, iv), key, iv) == msg)

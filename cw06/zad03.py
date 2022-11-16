@@ -239,27 +239,41 @@ def split_img(img_bin, n):
     return img_split
 
 
+def CBCde(msg, key, iv):
+    result = []
+
+    # tworze liste podkluczy
+    subkeys = key_schedule(key)
+    # dziele wiadomosc na czesci po 64 bity
+    sub_msg = textwrap.wrap(msg, 64)
+
+    vector = iv
+
+    for i in range(len(sub_msg)):
+        # odpowiednia czesc wiadomosci przepuszczam przez DES'a wraz z lista podkluczy.
+        new_msg = DES(sub_msg[i], subkeys[::-1])
+        # otrzymany ciag xor'uje z vektorem i dodaje do tablicy wynikowej
+        result.append(xor(vector, new_msg))
+        # vector dla kolejnego przebiegu petli ustawiam jako poprzedzajaca czesc wiadomosci
+        vector = sub_msg[i]
+
+    final = ''.join(result)
+    return final
+
+
 if __name__ == '__main__':
     key = '0111101000001010110010000001010101111111100000000000101000110001'
+    iv = '0011111111001100000111011100110100100101010100000111010001000110'
 
-    img = Image.open('miki.png')
+    img = Image.open('cbc_miki_coded.png')
     arr = np.array(img).ravel()
     arr_bin = [dec2bin(d, pad='8') for d in arr]
     bits = ''.join(arr_bin)
 
-    # dziele obrazek na czesci po 64 bity
-    sub_msg = textwrap.wrap(bits, 64)
+    decoded_mickey = CBCde(bits, key, iv)
 
-    # tworze liste podkluczy
-    subkeys = key_schedule(key)
-    result = []
-
-    # na kazdej czesci obrazka wykonuje DES przy pomocy listy podkluczy
-    for i in range(len(sub_msg)):
-        result.append(DES(sub_msg[i], subkeys))
-
-    # otrzymane zakodowane czesci lacze w jeden ciag
-    img_t = ''.join(result)
+    img_t = ''.join(decoded_mickey)
     img = np.array([bin2dec(b) for b in split_img(img_t, 8)]).reshape(np.array(img).shape)
     f_image = Image.fromarray(np.uint8(np.array(img)))
-    f_image.save("ecb_miki.png", "PNG")
+    f_image.save("cbc_miki_decoded.png", "PNG")
+    print("Miki odkodowany")
