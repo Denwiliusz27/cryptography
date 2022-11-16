@@ -25,9 +25,6 @@ def hex2bin(hex_str,pad=0):
     return bin
 
 
-
-
-
 def prepare_state(msg):
     div_msg = textwrap.wrap(msg, 8)
     matrix = []
