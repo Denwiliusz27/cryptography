@@ -1,9 +1,5 @@
-import numpy as np
-from PIL import Image
 import textwrap
-import matplotlib.pyplot as plt
-import IPython.display
-import copy
+
 
 IP = [57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3, 61,
       53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7, 56, 48,

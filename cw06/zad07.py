@@ -1,7 +1,10 @@
-import numpy as np
-from PIL import Image
 import textwrap
 
+hex_to_bin = {'0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100', '5': '0101', '6': '0110', '7': '0111',
+              '8': '1000', '9': '1001', 'a': '1010', 'b': '1011', 'c': '1100', 'd': '1101', 'e': '1110', 'f': '1111'}
+
+bin_to_hex = {'0000': '0', '0001': '1', '0010': '2', '0011': '3', '0100': '4', '0101': '5', '0110': '6', '0111': '7',
+              '1000': '8', '1001': '9', '1010': 'a', '1011': 'b', '1100': 'c', '1101': 'd', '1110': 'e', '1111': 'f'}
 
 IP = [57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3, 61,
       53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7, 56, 48,
@@ -237,7 +240,7 @@ def split_img(img_bin, n):
     return img_split
 
 
-def CBC(msg, key, iv):
+def CBCde(msg, key, iv):
     result = []
 
     # tworze liste podkluczy
@@ -248,35 +251,152 @@ def CBC(msg, key, iv):
     vector = iv
 
     for i in range(len(sub_msg)):
-        # wykonuje xor vektora z odpowiednia czescia wiadomosci
-        new_msg = xor(vector, sub_msg[i])
-        # otrzymany ciag przepuszczam przez DES'a wraz z lista podkluczy. Wynik dodaje do tablicy wynikowej
-        result.append(DES(new_msg, subkeys))
-        # vector dla kolejnego przebiegu petli ustawiam jako resultat DES'a
-        vector = result[i]
+        # odpowiednia czesc wiadomosci przepuszczam przez DES'a wraz z lista podkluczy.
+        new_msg = DES(sub_msg[i], subkeys[::-1])
+        # otrzymany ciag xor'uje z vektorem i dodaje do tablicy wynikowej
+        result.append(xor(vector, new_msg))
+        # vector dla kolejnego przebiegu petli ustawiam jako poprzedzajaca czesc wiadomosci
+        vector = sub_msg[i]
 
     final = ''.join(result)
     return final
 
 
-if __name__ == '__main__':
+def oracle(msg, L):
+    # sprawdzam czy ostatni element nie jest ciągiem znaków, dwoma zerami, lub jego wartość nie jest większa od L
+    if (not msg[len(msg) - 1].isnumeric()) or (msg[len(msg) - 1] == '00') or \
+            (int(msg[len(msg) - 1]) > L) or (len(msg) % L != 0) or (len(msg) == 0):
+        return False
+
+    # pobieram ostatni element
+    padding_el = msg[len(msg)-1]
+
+    if (len(msg) < int(padding_el)):
+        return False
+
+    # sprawdzam ostatnie n elementów tablicy, gdzie n - wartość ostatniego elementu
+    for i in range(len(msg)-2, len(msg)-1-int(padding_el), -1):
+        # jeśli i-ty element jest różny od ostatniego elem, tablicy
+        # print("sprawdzam: ", msg[i])
+        if msg[i] != padding_el:
+            return False
+
+    return True
+
+
+#######################################################################################################################
+
+def hex2bin(hex_str, pad=0):
+    bin = ''
+
+    # każdy znak z otrzymanego ciągu zamieniam na odpowiadającą mu, binarną czwórkę
+    for i in range(len(hex_str)):
+        bin = bin + hex_to_bin[hex_str[i]]
+
+    # usuwam zera z początku
+    bin = bin.lstrip('0')
+
+    # dopełniam ciąg zerami do wymaganej długości
+    if len(bin) < pad:
+        bin = '0' * (pad - len(bin)) + bin
+
+    return bin
+
+
+def bin2hex(bin_str, pad):
+    # dopisuję 0 na początku, aby długość tekstu miała ilość znaków podzielną na 4
+    if len(bin_str) % 4 == 1:
+        bin_str = '000' + bin_str
+    elif len(bin_str) % 4 == 2:
+        bin_str = '00' + bin_str
+    elif len(bin_str) % 4 == 3:
+        bin_str = '0' + bin_str
+
+    hex = ''
+
+    i = len(bin_str)
+
+    # biorę kolejne 4 znaki idąc od prawej strony i zamianiam na znak ze słownika
+    while i > 1:
+        hex_p = bin_to_hex[bin_str[i - 4:i]]
+        hex = hex_p + hex
+        i -= 4
+
+    # dopełniam do wymaganej liczby znaków
+    hex = hex.zfill(pad)
+
+    return hex
+
+
+def dec2hex(dec, pad):
+    val = hex(dec)[2:]
+    return val.rjust(pad, '0')
+
+
+def msghex_to_msgbin(msg):
+    return ''.join([format(int(i, 16), '08b') for i in msg])
+
+
+def msgbin_to_msghex(msg):
+    return [format(int(a, 2), '02x') for a in [msg[8 * i:8 * i + 8] for i in range(8)]]
+
+
+def server(msg_enc, iv):
     key = '0111101000001010110010000001010101111111100000000000101000110001'
-    iv = '0011111111001100000111011100110100100101010100000111010001000110'
-    msg = '1000110001101011011101110010100111101111101100111100001010100001011111110100000100100000111011001011000001011100110111101111110100000000100101011101110010000000110011011100000111000110011100111000010111111111011111000110001010101001101111110000010110011011'
+    msg = CBCde(msghex_to_msgbin(msg_enc), key, msghex_to_msgbin(iv))
+    return oracle(msgbin_to_msghex(msg), 8)
 
-    print("Szyfrowanie msg: ", CBC(msg, key,
-                                   iv) == '1111101000110001101111001100101101011001101010001101010101100111011001100111010011001011100001001111011000001111110010011110011101010000101011010011011100011110011011001011100100011100011001011101110011110001110100010111001100100010111101011111101010111000')
 
-    img = Image.open('miki.png')
-    arr = np.array(img).ravel()
-    arr_bin = [dec2bin(d, pad='8') for d in arr]
-    bits = ''.join(arr_bin)
+def find_padding_index(msg_ec, iv):
+    for i in range(len(msg_enc)):
+        new_iv = iv.copy()
+        new_iv[i] = 'aa'
 
-    miki_cbc = CBC(bits, key, iv)
+        if(server(msg_ec, new_iv) == False):
+            return i
+    return 0
 
-    img_t = ''.join(miki_cbc)
-    img = np.array([bin2dec(b) for b in split_img(img_t, 8)]).reshape(np.array(img).shape)
-    f_image = Image.fromarray(np.uint8(np.array(img)))
-    f_image.save("cbc_miki_coded.png", "PNG")
 
-    print("Miki zakodowany")
+def padding_oracle(msg_enc, iv):
+    # sprawdzam index od którego zaczyna sie padding
+    padding_value = find_padding_index(msg_enc, iv)
+    msg_len = len(msg_enc)
+
+    # tworze nowa wiadomosc z wartosciami paddingu
+    new_iv = ['00' for i in range(msg_len)]
+    for i in range(msg_len):
+        if i >= padding_value:
+            new_iv[i] = '0' + str(msg_len-padding_value)
+
+    suspected = iv.copy()
+
+    # ustawiam padding jako dł tablicy - wartość paddingu
+    padding_value = msg_len-padding_value
+
+    for j in range(msg_len-padding_value):
+        # tworze element 0+padding_value+1
+        new_padd_el = '0' + str(msg_len-padding_value+j-1)
+
+        # modyfikuje padding_val+1 ostatnich bajtów aby wartość była o 1 wększa
+        for i in range(1, padding_value+j+1):
+            suspected[msg_len-i] = bin2hex(xor(xor(hex2bin(iv[msg_len-i], 8), hex2bin(new_iv[msg_len-i], 8)), hex2bin(new_padd_el, 8)), 2)
+
+        # szukam nowego bajtu wiadomości za pomocą wyroczni
+        new_val = suspected[padding_value+1-j]
+        for i in range(255):
+            suspected[padding_value+1-j] = dec2hex(i, 2)
+            if (server(msg_enc, suspected)):
+                break
+
+        # wstawiam nową wartość po xorowaniu to wyniku
+        index = '0' + str(padding_value+1+j)
+        new_iv[padding_value+1-j] = bin2hex( xor( xor(hex2bin(suspected[padding_value+1-j], 8), hex2bin(index, 8)), hex2bin(new_val, 8)), 2)
+
+    return new_iv
+
+
+if __name__ == '__main__':
+    msg_enc = ['be', '21', 'a2', 'd7', '9d', 'c7', '8d', 'a3']
+    iv = ['36', '92', '8b', '53', 'ef', 'f2', '7a', 'e4']
+
+    print("Message: ", padding_oracle(msg_enc, iv))
