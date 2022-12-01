@@ -1,18 +1,25 @@
-def inv(p, n):
-    t = 0
-    newt = 1
-    r = n
-    newr = p
+import numpy as np
 
-    while newr != 0 :
-        q = r // newr
+def inv(p, n):
+    if np.isnan(p):
+        return float('nan')
+
+    if p == 0:
+        return float('nan')
+
+    t = 1
+    newt = 0
+    r = 0
+    newr = 1
+
+    while n != 0:
+        q = p // n
         t, newt = newt, t - (q * newt)
         r, newr = newr, r - (q * newr)
+        p, n = n, p % n
 
-    if r > 1:
-        return 0
     if t < 0:
-        t += n
+        t += newt
 
     return t
 
