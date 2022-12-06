@@ -1,19 +1,54 @@
+import random
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 # generuje liste punktów krzywej eliptycznej dla podanego a, b i p
-def gen(a, b, p):
+def gen(a,b,p):
     result = []
 
     for x in range(p):
         for y in range(p):
-            L = (y ** 2) % p
-            P = (x ** 3 + a * x + b) % p
+            L = (y**2) % p
+            P = (x**3 + a*x + b) % p
             # sprawdzenie czy punkt x,y spełnia nierówność y^3 = (x^2 + ax + b) % p
             if L == P:
                 result.append([x, y])
 
     return result
+
+
+# zwraca rząd punktu G
+def ord(G,a,p):
+    new_G = G
+
+    # sprawdzam czy G nie jest elementem w nieskończoności
+    if np.isnan(G[0]) and np.isnan(G[1]):
+        return new_G
+
+    # rząd elementu G
+    n = 1
+
+    # dodaje G dopóki new_G nie będzie elementem w nieskończoności
+    while not (np.isnan(new_G[0]) and np.isnan(new_G[1])):
+        new_G = add(new_G, G, a, p)
+        n += 1
+
+    return n
+
+
+# znajduje punkt z największym rzędem
+def findMax(a, b, p):
+    points = gen(a, b, p)
+
+    max = 0
+    for i in range(len(points)):
+        value = ord(points[i], a, p)
+
+        if value > max:
+            max = value
+            point = points[i]
+
+    return max, point
 
 
 def inv(p, n):
@@ -91,52 +126,21 @@ def multiply(n, P, a, p):
     return new_P
 
 
-def analize(a, b, p):
-    points = gen(a, b, p)
-    print(points)
-
-    x = []
-    y = []
-
-    for i in range(len(points)):
-        px = points[i][0]
-        py = points[i][1]
-        x.append(px)
-        y.append(py)
-
-    x = np.array(x)
-    y = np.array(y)
-
-    plt.scatter(x, y)
-    plt.show()
-
-    for i in range(len(points)):
-        j = 1
-        new_p = points[i]
-        add_point = 1
-
-        while (add_point):
-            print(j, "* [", points[i][0], ", ", points[i][1], "] --> ", "[", new_p[0], ", ", new_p[1], "]")
-            add_point = input("Dodac kolejna wartosc?: ")
-
-            if add_point == '1':
-                j += 1
-                point = [int(points[i][0]), int(points[i][1])]
-                # print("j:", j, ", P:", point, ", a:", a, ", p:",p)
-                new_p = multiply(j, point, a, p)
-            else:
-                add_point = 0
-
-        print("[", points[i][0], ", ", points[i][1], "]  generuje ", j, " elementowa grupe")
-
-
 if __name__ == '__main__':
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("~~       y^2 = x^3 - x     ~~")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    analize(-1, 0, 7)
+    a = -1
+    b = 0
+    p = 97
+    max, G = findMax(a, b, p)
 
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("~~    y^2 = x^3 - 2x + 1   ~~")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    analize(-2, 1, 5)
+    points = gen(a, b, p)
+
+    n = random.randint(2, len(points)-1)
+    A = multiply(n, G, a, p)
+
+    m = random.randint(2, len(points)-1)
+    B = multiply(m, G, a, p)
+
+    k_A = multiply(n, B, a, p)
+    k_B = multiply(m, A, a, p)
+
+    print(k_A == k_B)
