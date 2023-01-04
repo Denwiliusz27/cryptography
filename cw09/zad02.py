@@ -12,6 +12,8 @@ def rho_pollard():
     h1 = str(binascii.b2a_hex(os.urandom(random.randint(1, 5))))[2:-1]
     h1p = h1
 
+    print("liczba: ", h1)
+
     h2 = simple_hash(h1)
     h2p = simple_hash(simple_hash(h1p))
 
