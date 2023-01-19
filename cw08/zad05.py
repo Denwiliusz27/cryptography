@@ -100,8 +100,10 @@ def findMax(a, b, p):
 
     max = 0
     for i in range(len(points)):
+        # obliczam rząd punktu
         value = ord(points[i], a, p)
 
+        # sprawdzam czy otrzymany rząd jest wiekszy od zapisanego
         if value > max:
             max = value
             point = points[i]

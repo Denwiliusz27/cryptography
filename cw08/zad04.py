@@ -45,7 +45,8 @@ if __name__ == '__main__':
     plt.plot(top, f_points, 'r', label='p + 1 + 2 * math.sqrt(p)')
     plt.plot(down, f_points, 'g', label='p + 1 - 2 * math.sqrt(p)')
 
-    plt.bar(nr_points, p, width=2.0)
+    # plt.bar(nr_points, p, width=2.0)
+    plt.plot(nr_points, p, 'o')
     plt.xticks(nr_points, nr_points)
     plt.yticks(p, p)
     # plt.grid()

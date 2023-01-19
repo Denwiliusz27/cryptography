@@ -77,11 +77,10 @@ def Fermat_test(p, k):
 
 def key_gen(p,q):
     n = p*q
+    e = 65537
 
     # obliczam funkce Eulera
     qn = (q-1)*(p-1)
-
-    e = 65537 #gen_p(1, qn-1)
 
     # obliczam d jako odwrotność e w ciele Z
     d = inv(e, qn)

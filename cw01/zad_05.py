@@ -25,9 +25,6 @@ def cezar(text, key):
     final = ''
 
     for character in text:
-        # if character in string.punctuation or character in string.whitespace or character in string.digits:
-        #     final += character
-        #     continue
         if character.isupper():
             character = character.lower()
             is_upper = True
@@ -52,6 +49,7 @@ def cezar(text, key):
     return final
 
 
+# porównuje otrzymane średnie od bazowych
 def check_error(base, test):
     error = 0
 
@@ -63,44 +61,47 @@ def check_error(base, test):
     return error / len(base)
 
 
+# zwraca słownik z wynikami o najmniejszej różnicy wobec bazowych wartości
 def find_best_cezar(text):
     result = []
 
+    # wykonuje cezara dla podanego tekstu i dla kluczy o różnych długościach
     for key in range(len(alphabet)):
         cezar_txt = cezar(text, key)
-        cezar_frequency = set_frequency(cezar_txt)
-        error = check_error(frequency, cezar_frequency)
+        cezar_frequency = set_frequency(cezar_txt)  # ustawia częstotliwość w słowniku po wykonaniu cezara
+        error = check_error(frequency,
+                            cezar_frequency)  # porównuje otrzymany słownik z bazowym i wstawia wynik do tabeli
         result.append((key, error))
-        print('Key: ', key, ", error: ", error)
+        # print('Key: ', key, ", error: ", error)
 
-    result.sort(key=lambda entry: entry[1])
+    result.sort(key=lambda entry: entry[1])  # wybiera dł klucza dla której błąd był najmniejszy
     return result
 
 
 def find_key(text):
     test_lengths = []
 
+    # znajduje prawdopodobna dl klucza poprzez wykonywanie cezara na tekscie co n-ty znak
     for n in range(1, 10):
         print('_____________________________')
         print('sprawdzam klucz o odl = ', n)
-        new_text = text[1::n]
-        best = find_best_cezar(new_text)
-        test_lengths.append((n, best[0][1]))
+        new_text = text[1::n]  # z tekstu tworzy tekst z co n-tej litery
+        best = find_best_cezar(new_text)  # wykonuje cezara na nowo powstałym tekście
+        test_lengths.append((n, best[0][1]))  # dodaje klucz razem z wartością błędu dla niego
 
-    test_lengths.sort(key=lambda entry: entry[1])
-    print('Possible key len = ', test_lengths[0][0])
+    test_lengths.sort(key=lambda entry: entry[1])  # wybiera dl klucza dla której różnica była najmniejsza
+    print('Prawdopodobna dl klucza = ', test_lengths[0][0])
 
     decoding_key = test_lengths[0][0]
     new_key = ''
 
     for n in range(0, decoding_key):
-        best_c = find_best_cezar(text[n::decoding_key])
+        # znajduje najlepszego cezara w tekście co n-ty znak, przesuwa o jeden znak przy każdej pętli
+        best_c = find_best_cezar(text[n::decoding_key])  # zwraca wartosc przesuniecia
         new_key += liczb_do_lit[35 - best_c[0][0]]
+        print('key: ', new_key)
 
     return new_key
-    # output_file = open('ksiazka2_output.txt', 'a')
-    # output_file.write(final)
-    # output_file.close()
 
 
 # funkcja zliczająca wystąpienia kolejnych znaków w czytanym tekście
@@ -109,10 +110,8 @@ def set_frequency(text):
     freq = {}
 
     for char in text:
-        if char not in alphabet:  # in string.punctuation or char in string.whitespace or char in string.digits:
+        if char not in alphabet:
             continue
-        # elif char.isupper():
-        #     char = char.lower()
 
         freq[char] = freq.get(char, 0) + 1
         amount += 1
@@ -184,6 +183,7 @@ if __name__ == '__main__':
     book = file.read()
     file.close()
 
+    # usuwam kropki, przecinki, spacje, cyfry z tekstu
     test_text = book.translate(str.maketrans('', '', string.whitespace))
     test_text = test_text.translate(str.maketrans('', '', string.punctuation))
     test_text = test_text.translate(str.maketrans('', '', string.digits))

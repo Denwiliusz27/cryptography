@@ -188,7 +188,7 @@ def KeyExpansion(key):
         # dodaje otrzymane slowo jako pierwszy element kolejnego wiersza slow
         subkeys[i + 1].append(hex_xor(rcon, subkeys[i][0]))
 
-        # generje pozostale slowa
+        # generuje pozostale slowa
         for j in range(1, 4):
             subkeys[i + 1].append(hex_xor(subkeys[i][j], subkeys[i + 1][j - 1]))
 

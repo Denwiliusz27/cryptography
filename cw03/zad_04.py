@@ -52,10 +52,10 @@ def Feistel(message, subkeys, F):
     r_msg_str = ''.join(r_msg)
 
     for i in range(0, 16):
-        # wykonuje wunkcje F dla prawej czesci wiadomosci oraz odpowiedniego klucza
+        # wykonuje funkcje F dla prawej czesci wiadomosci oraz odpowiedniego klucza
         r_msg_f = F(r_msg_str, subkeys[i])
 
-        #otrzymany wynik z funkcji F xorje z lewa czescia wiadomosci
+        #otrzymany wynik z funkcji F xoruje z lewa czescia wiadomosci
         l_xor = xor(r_msg_f, l_msg_str)
 
         # jesli wykonywany krok nie jest 16, zamieniamy lewa i prawa czesc

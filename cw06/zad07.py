@@ -377,7 +377,7 @@ def padding_oracle(msg_enc, iv):
         # tworze element 0+padding_value+1
         new_padd_el = '0' + str(msg_len-padding_value+j-1)
 
-        # modyfikuje padding_val+1 ostatnich bajtów aby wartość była o 1 wększa
+        # modyfikuje padding_val+1 ostatnich bajtów aby wartość była o 1 większa
         for i in range(1, padding_value+j+1):
             suspected[msg_len-i] = bin2hex(xor(xor(hex2bin(iv[msg_len-i], 8), hex2bin(new_iv[msg_len-i], 8)), hex2bin(new_padd_el, 8)), 2)
 
