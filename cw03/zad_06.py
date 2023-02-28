@@ -184,7 +184,6 @@ def Feistel(message, subkeys, F):
             r_msg_str = l_xor
 
     coded_msg = l_xor + r_msg_str
-
     return coded_msg
 
 
@@ -212,14 +211,21 @@ def key_schedule(key):
         left_key[i] = int(permuted_key[i])
         right_key[i] = int(permuted_key[half_key_l+i])
 
+    # print("lft key: ", left_key)
+    # print("rgh key: ", right_key)
+
     subkeys = []
 
     for i in range(len(shift_table)):
         new_subkey = ''
+        # print("~~~~~~~~~", i, "~~~~~~~~~~")
 
         # przesuwa lewy i prawy podklucz o zadaną liczbę z tabeli shift_table z odpowiadającej pozycji
         left_subkey = shift_left(left_key, shift_table[i])
         right_subkey = shift_left(right_key, shift_table[i])
+
+        # print("lft key: ", left_subkey)
+        # print("rgh key: ", right_subkey)
 
         # łączy uzyskany lewy iprawy podklucz uzyskując podklucz 56 bitowy
         for j in range(len(left_subkey)):
@@ -239,6 +245,7 @@ def DES(message, subkeys):
     feistel = Feistel(message_ip, subkeys, F)
     message_fp = permute(feistel, FP)
 
+    print("mes: ", message_fp)
     return message_fp
 
 
